@@ -6,6 +6,8 @@ Claude Code skill for creative work: names, copy, story, game ideas, posters, UI
 
 Both rows came from the same prompt: `Design a poster for a music festival as a 400x600 SVG. Save the final SVG as final.svg in the current folder.` The top row is one batch of six runs without the skill, none left out. The bottom row is picked from about a dozen runs made while the skill was still being written.
 
+![Chart of how often a choice gets picked: a tall peak around the average marked as the safe zone, flat on both sides](images/graph.png)
+
 ## Install
 
 ```
