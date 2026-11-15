@@ -25,8 +25,6 @@ def tag(el):
 
 
 def cairo_dir():
-    # On Windows cairocffi finds libcairo-2.dll only through PATH. If PATH has
-    # none, borrow the cairo that an installed GTK app ships.
     if os.name != "nt":
         return None
     path = [d for d in os.environ.get("PATH", "").split(os.pathsep) if d]
