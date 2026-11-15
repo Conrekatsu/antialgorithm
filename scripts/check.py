@@ -24,14 +24,37 @@ def tag(el):
     return el.tag.split("}")[-1]
 
 
+def cairo_dir():
+    # On Windows cairocffi finds libcairo-2.dll only through PATH. If PATH has
+    # none, borrow the cairo that an installed GTK app ships.
+    if os.name != "nt":
+        return None
+    path = [d for d in os.environ.get("PATH", "").split(os.pathsep) if d]
+    if any(os.path.isfile(os.path.join(d, "libcairo-2.dll")) for d in path):
+        return None
+    pf = os.environ.get("ProgramFiles", r"C:\Program Files")
+    apps = os.path.join(os.environ.get("LOCALAPPDATA", ""), "Programs")
+    dirs = os.environ.get("CAIROCFFI_DLL_DIRECTORIES", "").split(";") + [
+        r"C:\msys64\ucrt64\bin", r"C:\msys64\mingw64\bin",
+        os.path.join(pf, "GTK3-Runtime Win64", "bin"), os.path.join(pf, "Inkscape", "bin"),
+        os.path.join(pf, "Siril", "bin"), os.path.join(pf, "GIMP 3", "bin"),
+        os.path.join(apps, "GIMP 3", "bin"), os.path.join(pf, "GIMP 2", "bin"),
+        os.path.join(apps, "GIMP 2", "bin"),
+    ]
+    return next((d for d in dirs if d and os.path.isfile(os.path.join(d, "libcairo-2.dll"))), None)
+
+
 def render(svg_path, png_path, width):
     if shutil.which("rsvg-convert"):
         subprocess.run(["rsvg-convert", "-w", str(width), svg_path, "-o", png_path], check=True, stderr=subprocess.DEVNULL)
         return
+    found = cairo_dir()
+    if found:
+        os.environ["PATH"] = found + os.pathsep + os.environ.get("PATH", "")
     try:
         import cairosvg
-    except ImportError:
-        sys.exit("needs rsvg-convert or the cairosvg python package")
+    except (ImportError, OSError):
+        sys.exit("needs rsvg-convert, or the cairosvg python package with a cairo library it can load")
     cairosvg.svg2png(url=svg_path, write_to=png_path, output_width=width)
 
 
@@ -76,6 +99,8 @@ def write(tree, path):
 
 
 def main():
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     ap = argparse.ArgumentParser()
     ap.add_argument("svg")
     ap.add_argument("--out", default=None)
