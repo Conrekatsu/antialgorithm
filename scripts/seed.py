@@ -3,7 +3,25 @@ import argparse
 import random
 import sys
 
+import history
+
 rng = random.SystemRandom()
+RECENT = {}
+
+
+def load_recent(seeds=12):
+    RECENT.clear()
+    for entry in reversed(history.load("seed")[-seeds:]):
+        for axis, value in entry.get("seed", {}).items():
+            RECENT.setdefault(axis, [])
+            if value not in RECENT[axis]:
+                RECENT[axis].append(value)
+
+
+def pick(axis, items):
+    avoid = set(RECENT.get(axis, [])[: len(items) // 2])
+    fresh = [i for i in items if i not in avoid]
+    return rng.choice(fresh or items)
 
 METHOD_FAMILIES = {
     "hand and print": [
@@ -112,17 +130,17 @@ ANCHOR = [
 ]
 
 SETTING = [
-    "a desert town at noon", "a mountain village above the clouds", "a rooftop in a huge city",
-    "a parking lot after closing", "a tropical market in the rain", "a frozen lake", "a rice terrace",
-    "a highway service station", "a night bus", "a dense housing block courtyard", "a jungle river",
-    "a shopping mall basement", "a steppe under a big sky", "an industrial suburb",
-    "a cable car station", "a salt flat", "a volcanic island", "a pine forest in snow",
-    "a stadium after the match", "a subway platform", "a hot spring town", "an orchard in bloom",
-    "a border crossing", "a canyon", "a university dorm", "a wind farm", "a crowded old bazaar",
-    "a new town still being built", "a ski lift", "a tea plantation", "an airport at night",
-    "a car wash", "a hilltop monastery", "a laundromat", "a savanna road", "a glass office tower",
-    "a village wedding tent", "a server room", "a hospital corridor", "a school gym",
-    "a gas station in the mountains", "a food court", "a construction crane cab",
+    "a rooftop", "a parking lot after closing", "a highway service station", "a night bus",
+    "a housing block courtyard", "a shopping mall basement", "the industrial edge of town",
+    "a stadium after the match", "a train station", "a border crossing", "a student dorm",
+    "a market in the rain", "a neighborhood still being built", "an airport at night",
+    "a car wash", "a laundromat", "a wedding", "a server room", "a hospital corridor",
+    "a school gym", "a gas station far from town", "a food court", "a construction crane cab",
+    "a bus depot", "a hotel kitchen", "a police station waiting room", "a hair salon",
+    "a local radio station", "a cemetery on a holiday", "a car repair shop", "a back yard",
+    "a supermarket at closing time", "an apartment stairwell", "a power plant", "a funeral",
+    "a playground at dusk", "a public pool", "a post office", "a phone repair stall",
+    "the open land outside town", "the highest place nearby", "the water nearest the town",
 ]
 
 REGION = [
@@ -143,10 +161,43 @@ NO_ANCHOR = [
     "no single object, the surface of the place up close",
 ]
 
+FIXED_COLOR = {
+    "x-ray image", "thermal camera image", "night vision footage", "infrared photo", "sonar scan",
+    "weather radar map", "e-ink display", "thermal receipt printer", "photocopy zine",
+    "LED dot matrix", "airport departure board", "security camera still",
+}
+CLASH = [
+    ({"layout": "the text is the image"}, {"type": "no type at all if allowed"}),
+    ({"layout": "the text is the image"}, {"type": "only small type"}),
+    ({"anchor": "no single object, only type"}, {"type": "no type at all if allowed"}),
+    ({"type": "one giant word"}, {"layout": "subject tiny in a large empty field"}),
+]
+
+
+def family_of(m):
+    for family, items in METHOD_FAMILIES.items():
+        if m in items:
+            return family
+    return None
+
 
 def method():
     family = rng.choice(list(METHOD_FAMILIES))
-    return rng.choice(METHOD_FAMILIES[family])
+    return pick("method", METHOD_FAMILIES[family])
+
+
+def clashes(seed):
+    for a, b in CLASH:
+        if all(seed.get(k) == v for k, v in a.items()) and all(seed.get(k) == v for k, v in b.items()):
+            return True
+    m = seed.get("method")
+    if m is None:
+        return False
+    if m in FIXED_COLOR:
+        return seed.get("color") != "the method's own colors"
+    if seed.get("color") == "the method's own colors":
+        return True
+    return seed.get("color") == "the colors of a machine screen" and family_of(m) != "screen and machine"
 
 
 def pools(kind):
@@ -157,34 +208,67 @@ def pools(kind):
     return dict(IDEA)
 
 
-def roll(kind):
+def roll_once(kind, keep, only=None):
     out = {}
     for name, items in pools(kind).items():
-        out[name] = method() if items is None else rng.choice(items)
+        out[name] = method() if items is None else pick(name, items)
     if kind == "visual":
-        out["verb"] = rng.choice(IDEA["verb"])
-        out["scale"] = rng.choice(IDEA["scale"])
-    out["setting"] = rng.choice(SETTING)
-    out["region"] = rng.choice(REGION)
+        out["verb"] = pick("verb", IDEA["verb"])
+        out["scale"] = pick("scale", IDEA["scale"])
+    out["setting"] = pick("setting", SETTING)
+    out["region"] = pick("region", REGION)
     if kind == "visual" and rng.random() < 0.5:
-        out["anchor"] = rng.choice(NO_ANCHOR)
+        out["anchor"] = pick("anchor", NO_ANCHOR)
     else:
-        out["anchor"] = rng.choice(ANCHOR)
+        out["anchor"] = pick("anchor", ANCHOR)
+    out.update(keep)
+    if only:
+        out = {k: v for k, v in out.items() if k in keep or k == only}
+    if out.get("method") in FIXED_COLOR and "color" in out and "color" not in keep:
+        out["color"] = "the method's own colors"
     return out
+
+
+def axes_of(kind):
+    return list(roll_once(kind, {}))
+
+
+def roll(kind, keep=None, only=None):
+    keep = keep or {}
+    for _ in range(200):
+        seed = roll_once(kind, keep, only)
+        if not clashes(seed):
+            return seed
+    sys.exit("the kept axes clash with each other; keep fewer")
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("kind", nargs="?", default="visual", choices=["visual", "text", "idea"])
     ap.add_argument("--only", help="roll one axis again, for example --only method")
+    ap.add_argument("--keep", action="append", default=[], help="an axis you keep, for example --keep \"method=x-ray image\"")
+    ap.add_argument("--no-log", action="store_true", help="do not save this seed to the history")
     args = ap.parse_args()
-    seed = roll(args.kind)
+    load_recent()
+    keep = {}
+    for item in args.keep:
+        k, sep, v = item.partition("=")
+        if not sep:
+            sys.exit(f"--keep needs axis=value, got '{item}'")
+        keep[k.strip()] = v.strip()
+    axes = axes_of(args.kind)
+    for name in [*keep, *([args.only] if args.only else [])]:
+        if name not in axes:
+            sys.exit(f"no axis '{name}' for {args.kind}; axes: {', '.join(axes)}")
     if args.only:
-        if args.only not in seed:
-            sys.exit(f"no axis '{args.only}' for {args.kind}; axes: {', '.join(seed)}")
+        keep.pop(args.only, None)
+    seed = roll(args.kind, keep, args.only)
+    if args.only:
         seed = {args.only: seed[args.only]}
     for k, v in seed.items():
         print(f"{k}: {v}")
+    if not args.no_log:
+        history.add({"type": "seed", "kind": args.kind, "seed": seed})
 
 
 if __name__ == "__main__":

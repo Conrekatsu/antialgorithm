@@ -72,11 +72,19 @@ def parse_path(d):
             continue
         c = cmd.lower()
         n = ARGS[c]
-        chunk = toks[i:i + n]
-        if len(chunk) < n or any(t.isalpha() for t in chunk):
+        a = []
+        j = i
+        while len(a) < n and j < len(toks) and not toks[j].isalpha():
+            t = toks[j]
+            if c == "a" and len(a) in (3, 4) and len(t) > 1 and t[0] in "01":
+                a.append(float(t[0]))
+                toks[j] = t[1:]
+                continue
+            a.append(float(t))
+            j += 1
+        if len(a) < n:
             break
-        a = [float(t) for t in chunk]
-        i += n
+        i = j
         ox, oy = cur if cmd.islower() else (0.0, 0.0)
         new_c = new_q = None
         if c == "m":

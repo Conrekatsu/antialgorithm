@@ -18,11 +18,15 @@ The scripts need Python 3. `check.py` also needs numpy, Pillow and `rsvg-convert
 
 ## Scripts
 
-`seed.py` rolls a starting point when the request is thin. A visual seed gives a making method, colors, layout, type, a verb and a scale for the idea, a setting, a region and, half the time, an object. A text seed gives a voice, a way in and a register. An idea seed gives a verb, a constraint, a scale and a pressure. It draws from system randomness, so two people sending the same prompt start in different places.
+`seed.py` rolls a starting point when the request is thin. A visual seed gives a making method, colors, layout, type, a verb and a scale for the idea, a setting, a region and, half the time, an object. A text seed gives a voice, a way in and a register. An idea seed gives a verb, a constraint, a scale and a pressure. It draws from system randomness, so two people sending the same prompt start in different places. It also saves each seed to `history.jsonl` in the skill folder and skips values from the last few, so your own seeds don't repeat from one session to the next. `--keep "axis=value"` holds an axis fixed, which lets you keep a subject and roll only the look.
+
+`moves.py` keeps a short log of the main move behind each off-default answer, such as "neon tube wall, almost no type". The model reads it before showing new work, so it doesn't reuse a move that worked last time just because it worked.
 
 `rough.py` takes an SVG and shakes its straight lines, shapes and letters, and breaks the even spacing of repeated marks, so a hand-made look drawn in code stops looking plotted. It is only for hand-made methods such as print, paint, stamps and ink; screen, camera and render looks keep their own marks.
 
-`check.py` renders an SVG at full size and at icon size and lists text that runs off an edge, sits under a shape, has low contrast or is too small.
+`check.py` renders an SVG at full size and at icon size and lists text that runs off an edge, sits under a shape, has low contrast or is too small. The size limit fits posters; for an app screen use `--min-text 0.6`.
+
+Visual rules live in `visuals.md`, which the model reads only for visual work, so a name or a slogan doesn't load them.
 
 ## License
 

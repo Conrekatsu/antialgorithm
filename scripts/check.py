@@ -56,6 +56,12 @@ def render(svg_path, png_path, width):
     cairosvg.svg2png(url=svg_path, write_to=png_path, output_width=width)
 
 
+def flat(png, bg):
+    im = np.asarray(Image.open(png).convert("RGBA"), dtype=np.float32)
+    a = im[:, :, 3:4] / 255
+    return im[:, :, :3] * a + bg * (1 - a)
+
+
 def size_of(root):
     vb = [float(n) for n in NUM.findall(root.get("viewBox", ""))]
     if len(vb) == 4:
@@ -104,9 +110,11 @@ def main():
     ap.add_argument("--out", default=None)
     ap.add_argument("--width", type=int, default=800)
     ap.add_argument("--small", type=int, default=64)
+    ap.add_argument("--min-text", type=float, default=1.2, help="smallest text height as a percent of the image side; about 0.6 for interfaces")
     args = ap.parse_args()
 
-    out = args.out or os.path.splitext(args.svg)[0] + "_check"
+    name = os.path.splitext(os.path.basename(args.svg))[0]
+    out = args.out or os.path.join(tempfile.gettempdir(), "antialgorithm_check", name)
     os.makedirs(out, exist_ok=True)
     tree = ET.parse(args.svg)
     root = tree.getroot()
@@ -118,7 +126,9 @@ def main():
     small_png = os.path.join(out, "small.png")
     render(args.svg, full_png, args.width)
     render(args.svg, small_png, args.small)
-    full = np.asarray(Image.open(full_png).convert("RGB"), dtype=np.float32)
+    full = flat(full_png, 255)
+    clear = bool((np.asarray(Image.open(full_png).convert("RGBA"))[:, :, 3] < 250).any())
+    full_dark = flat(full_png, 0) if clear else None
 
     parent = {c: p for p in root.iter() for c in p}
 
@@ -148,7 +158,7 @@ def main():
         nf_png = os.path.join(out, "_nofilter.png")
         write(nf, nf_svg)
         render(nf_svg, nf_png, args.width)
-        plain = np.asarray(Image.open(nf_png).convert("RGB"), dtype=np.float32)
+        plain = flat(nf_png, 255)
         os.remove(nf_svg)
         os.remove(nf_png)
 
@@ -203,8 +213,8 @@ def main():
             problems.append(f"text '{name}': runs off the {'/'.join(sides)} edge")
         lines = max(1, len(texts(root)[i].findall(f"{{{SVG_NS}}}tspan")))
         share = (ys.max() - ys.min() + 1) / scale / lines / max(w, h)
-        if share < 0.012 and not sides:
-            problems.append(f"text '{name}': very small, about {share * 100:.1f}% of the image side (want 1.2%+)")
+        if share * 100 < args.min_text and not sides:
+            problems.append(f"text '{name}': very small, about {share * 100:.1f}% of the image side (want {args.min_text:g}%+)")
 
         rgba = np.asarray(Image.open(pp).convert("RGBA"), dtype=np.float32)
         inner = rgba[p:p + ch, p:p + cw]
@@ -224,7 +234,9 @@ def main():
                 ring |= np.roll(np.roll(mask, dy, 0), dx, 1)
         ring &= ~mask
         lum = lambda c: c @ np.array([0.2126, 0.7152, 0.0722], dtype=np.float32)
-        contrast = abs(lum(full[mask]).mean() - lum(full[ring]).mean()) if ring.any() else 255
+        contrast = 255
+        if ring.any():
+            contrast = max(abs(lum(img[mask]).mean() - lum(img[ring]).mean()) for img in (full, full_dark) if img is not None)
         if cover > 0.04 and not ancestor_filtered(texts(root)[i]):
             problems.append(f"text '{name}': {cover * 100:.0f}% covered or changed by something drawn over it")
         elif contrast < 30:
@@ -234,6 +246,8 @@ def main():
     print(f"render: {full_png}")
     print(f"small {args.small}px: {small_png}")
     print(f"texts checked: {n}")
+    if clear:
+        print("background has see-through parts; contrast was measured on white and on black, the better one counts")
     if problems:
         print("problems:")
         for pr in problems:
