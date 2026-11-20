@@ -10,15 +10,36 @@ Both rows came from the same prompt: `Design a poster for a music festival as a 
 
 ## Install
 
+In Claude Code:
+
+```
+/plugin install antialgorithm --marketplace mankidev/antialgorithm
+```
+
+Claude Code before 2.1.275 needs the marketplace added first:
+
+```
+/plugin marketplace add mankidev/antialgorithm
+/plugin install antialgorithm@antialgorithm
+```
+
+Or clone it into your skills folder:
+
 ```
 git clone https://github.com/mankidev/antialgorithm ~/.claude/skills/antialgorithm
+```
+
+For Codex, Cursor, OpenCode and other agents that read `SKILL.md`, the [skills](https://github.com/vercel-labs/skills) CLI puts it in the right folder:
+
+```
+npx skills add mankidev/antialgorithm
 ```
 
 The scripts need Python 3. `check.py` also needs numpy, Pillow and `rsvg-convert` (or the cairosvg package).
 
 ## Scripts
 
-`seed.py` rolls a starting point when the request is thin. A visual seed gives a making method, colors, layout, type, a verb and a scale for the idea, a setting, a region and, half the time, an object. A text seed gives a voice, a way in and a register. An idea seed gives a verb, a constraint, a scale and a pressure. It draws from system randomness, so two people sending the same prompt start in different places. It also saves each seed to `history.jsonl` in the skill folder and skips values from the last few, so your own seeds don't repeat from one session to the next. `--keep "axis=value"` holds an axis fixed, which lets you keep a subject and roll only the look.
+`seed.py` rolls a starting point when the request is thin. A visual seed gives a making method, colors, layout, type, a verb and a scale for the idea, a setting, a region and, half the time, an object. A text seed gives a voice, a way in and a register. An idea seed gives a verb, a constraint, a scale and a pressure. It draws from system randomness, so two people sending the same prompt start in different places. It also saves each seed to `~/.local/state/antialgorithm/history.jsonl` (under `$XDG_STATE_HOME` when that is set) and skips values from the last few, so your own seeds don't repeat from one session to the next. Plugin updates leave that file alone. `--keep "axis=value"` holds an axis fixed, which lets you keep a subject and roll only the look.
 
 `moves.py` keeps a short log of the main move behind each off-default answer, such as "neon tube wall, almost no type". The model reads it before showing new work, so it doesn't reuse a move that worked last time just because it worked.
 
