@@ -1,3 +1,7 @@
+<p align="center">
+  <img src=".claude-plugin/icon.png" width="140" height="140" alt="Orange bell curve with one point far out on its tail">
+</p>
+
 # antialgorithm
 
 <p align="center">
