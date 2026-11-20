@@ -1,5 +1,13 @@
 # antialgorithm
 
+<p align="center">
+  <a href="https://github.com/mankidev/antialgorithm/releases"><img src="https://img.shields.io/github/v/release/mankidev/antialgorithm?color=F07A1E&labelColor=171717" alt="Latest release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/mankidev/antialgorithm?color=F07A1E&labelColor=171717" alt="MIT license"></a>
+  <a href="https://agentskills.io"><img src="https://img.shields.io/badge/Agent_Skills-SKILL.md-F07A1E?labelColor=171717" alt="Agent Skills format"></a>
+  <img src="https://img.shields.io/badge/python-3-F07A1E?labelColor=171717" alt="Python 3">
+  <a href="https://github.com/mankidev/antialgorithm/stargazers"><img src="https://img.shields.io/github/stars/mankidev/antialgorithm?color=F07A1E&labelColor=171717" alt="GitHub stars"></a>
+</p>
+
 ![Six posters without the skill on top, six with it below](images/showcase.png)
 
 Agent skill for creative work: names, copy, story, game ideas, posters, UI. It makes the model name its first, most average pick, then move away from it for a reason taken from the project.
