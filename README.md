@@ -2,7 +2,7 @@
 
 ![Six posters without the skill on top, six with it below](images/showcase.png)
 
-Claude Code skill for creative work: names, copy, story, game ideas, posters, UI. It makes the model name its first, most average pick, then move away from it for a reason taken from the project.
+Agent skill for creative work: names, copy, story, game ideas, posters, UI. It makes the model name its first, most average pick, then move away from it for a reason taken from the project.
 
 Both rows came from the same prompt: `Design a poster for a music festival as a 400x600 SVG. Save the final SVG as final.svg in the current folder.` The top row is one batch of six runs without the skill, none left out. The bottom row is picked from about a dozen runs made while the skill was still being written.
 
@@ -10,29 +10,22 @@ Both rows came from the same prompt: `Design a poster for a music festival as a 
 
 ## Install
 
-In Claude Code:
-
-```
-/plugin install antialgorithm --marketplace mankidev/antialgorithm
-```
-
-Claude Code before 2.1.275 needs the marketplace added first:
-
-```
-/plugin marketplace add mankidev/antialgorithm
-/plugin install antialgorithm@antialgorithm
-```
-
-Or clone it into your skills folder:
-
-```
-git clone https://github.com/mankidev/antialgorithm ~/.claude/skills/antialgorithm
-```
-
-For Codex, Cursor, OpenCode and other agents that read `SKILL.md`, the [skills](https://github.com/vercel-labs/skills) CLI puts it in the right folder:
+The [skills](https://github.com/vercel-labs/skills) CLI puts it where your agent reads skills, for Codex, Cursor, OpenCode, Claude Code and others:
 
 ```
 npx skills add mankidev/antialgorithm
+```
+
+Or clone it into your agent's skills folder:
+
+```
+git clone https://github.com/mankidev/antialgorithm <skills folder>/antialgorithm
+```
+
+In Claude Code it also installs as a plugin (on versions before 2.1.275, run `/plugin marketplace add mankidev/antialgorithm` first):
+
+```
+/plugin install antialgorithm --marketplace mankidev/antialgorithm
 ```
 
 The scripts need Python 3. `check.py` also needs numpy, Pillow and `rsvg-convert` (or the cairosvg package).
