@@ -7,14 +7,14 @@
 <p align="center">
   <a href="https://github.com/mankidev/antialgorithm/releases"><img src="https://img.shields.io/github/v/release/mankidev/antialgorithm?color=F07A1E&labelColor=171717" alt="Latest release"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/mankidev/antialgorithm?color=F07A1E&labelColor=171717" alt="MIT license"></a>
-  <a href="https://agentskills.io"><img src="https://img.shields.io/badge/Agent_Skills-SKILL.md-F07A1E?labelColor=171717" alt="Agent Skills format"></a>
-  <img src="https://img.shields.io/badge/python-3-F07A1E?labelColor=171717" alt="Python 3">
   <a href="https://github.com/mankidev/antialgorithm/stargazers"><img src="https://img.shields.io/github/stars/mankidev/antialgorithm?color=F07A1E&labelColor=171717" alt="GitHub stars"></a>
 </p>
 
+<p align="center"><sub>English | <a href="docs/README_TR.md">Türkçe</a> | <a href="docs/README_ZH.md">简体中文</a> | <a href="docs/README_JA.md">日本語</a> | <a href="docs/README_KO.md">한국어</a> | <a href="docs/README_ES.md">Español</a> | <a href="docs/README_PT.md">Português</a> | <a href="docs/README_DE.md">Deutsch</a> | <a href="docs/README_FR.md">Français</a> | <a href="docs/README_RU.md">Русский</a></sub></p>
+
 ![Six posters without the skill on top, six with it below](images/showcase.png)
 
-Agent skill for creative work: names, copy, story, game ideas, posters, UI. It makes the model name its first, most average pick, then move away from it for a reason taken from the project.
+Agent skill for creative work: names, story, game ideas, posters, UI. It makes the model name its first, most average pick, then move away from it for a reason taken from the project.
 
 Both rows came from the same prompt: `Design a poster for a music festival as a 400x600 SVG. Save the final SVG as final.svg in the current folder.` The top row is one batch of six runs without the skill, none left out. The bottom row is picked from about a dozen runs made while the skill was still being written.
 
@@ -57,3 +57,12 @@ Visual rules live in `visuals.md`, which the model reads only for visual work, s
 ## License
 
 MIT
+
+## Star History
+
+<a href="https://star-history.com/#mankidev/antialgorithm&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=mankidev/antialgorithm&type=Date&theme=dark">
+    <img src="https://api.star-history.com/svg?repos=mankidev/antialgorithm&type=Date" alt="Star history chart for mankidev/antialgorithm">
+  </picture>
+</a>
