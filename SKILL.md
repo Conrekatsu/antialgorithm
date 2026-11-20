@@ -1,13 +1,13 @@
 ---
 name: antialgorithm
-description: 'Stops the safe, average, comfortable pick that AI reaches for first. Use when a creative choice is left open to Claude: ideas, names, story, game mechanics, visual style, color, poster or page layout, app or web interface design, composition, slogans, titles, taglines, creative copy. Not for code identifiers, bug fixes, choices the user already made, or texts whose form the user''s standing rules already set, such as a README, a store page, a commit message, release notes or license text. Also use when the user says "too generic", "boring", "typical AI", "too safe", "cliche", "average", "seen it before".'
+description: 'Stops the safe, average, comfortable pick that AI reaches for first. Use when a creative choice is left open to the agent: ideas, names, story, game mechanics, visual style, color, poster or page layout, app or web interface design, composition, slogans, titles, taglines, creative copy. Not for code identifiers, bug fixes, choices the user already made, or texts whose form the user''s standing rules already set, such as a README, a store page, a commit message, release notes or license text. Also use when the user says "too generic", "boring", "typical AI", "too safe", "cliche", "average", "seen it before".'
 ---
 
 # antialgorithm
 
 The first answer that comes to mind is the average of all that was already made. It feels right because it is familiar, and that is the problem: the user has seen it a thousand times. This skill makes you notice that pick and move away from it on purpose.
 
-The user's standing rules, in CLAUDE.md files and memory, always win over this skill, not only on language. If a rule there fixes the shape, the wording, the palette or the content of a piece, follow it and use this skill only for what is still open.
+The user's standing rules, in CLAUDE.md, AGENTS.md or similar files and memory, always win over this skill, not only on language. If a rule there fixes the shape, the wording, the palette or the content of a piece, follow it and use this skill only for what is still open.
 
 ## Where to start
 
